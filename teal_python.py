@@ -2,12 +2,12 @@ from pyteal import *
 
 
 def approval():
+    
+    # These addresses are only for temporary use and NOT REAL ADDRESSES
     app_address = Global.current_application_address()
     ureca_address = Addr("XDCJ64JIMQM6O2K7YZKZBOENLUALXHDNPFBQPED7KESUMDHA3ZFWLZMLEY")
     reserve_address = Addr("GTPS3JCRQJ7BNU43ZFHGYCVIITZ7E7R3WRGC25WPAFENFFA7XDZSAVDGCQ")
-    address_a = Addr("AFDVN3XUS2E2CKP6KKJDHKZMNKGJQ7L76SHXJP4T2G2B7DKGXUZ2H6NGTA")
-    address_b = Addr("J3IUTLDFDDQHKRETTMZYWUQZ7MPTQ4ISJBQWNT3UV56QXDGGBEZC2F2XVA")
-
+    
     # Creating Application
     on_creation = Seq(
         [
