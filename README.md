@@ -6,7 +6,7 @@
 - Prepare your platform (python, Purestake node, pyteal)
 - Compile
 
-Description
+## Short description
 REC Smart Contract is a contract that automatically handles the management of our asset/REC.
 The smart contract can create the asset, mint, reserve, transfer, and retire. All transactions must be called by our Creator Address (which will be URECA Address), otherwise will be rejected. Asset ID and numbers must be integers. Arguments, accounts, and assets must an array. To Test it create 4 accounts, which will represent Ureca, Reserve account, UserA, UserB
 
