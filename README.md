@@ -1,52 +1,85 @@
 # REC project
 
-- Download teal_python.py 
-- Create project on Intellij IDEA
-- Upload this file to src
-- Prepare your platform (python, Purestake node, pyteal)
-- Compile
+The REC Smart Contract is a program written in Pyteal, a language developed by Algorand. It manages our asset/REC automatically by creating it, minting, reserving, transferring, and retiring it. Only our Creator Address (URECA Address) is allowed to initiate these transactions, otherwise they will be rejected. All asset IDs and numbers must be integers, while arguments, accounts, and assets must be in the form of an array. 
 
-## Short description
-REC Smart Contract is a contract that automatically handles the management of our asset/REC.
-The smart contract can create the asset, mint, reserve, transfer, and retire. All transactions must be called by our Creator Address (which will be URECA Address), otherwise will be rejected. Asset ID and numbers must be integers. Arguments, accounts, and assets must an array. To Test it create 4 accounts, which will represent Ureca, Reserve account, UserA, UserB
 
-## Creating Asset Transaction
-- Adjust the parameters of new asset in function asset_creation()
-- Create the Smart Contract
-- Fund the dApp account to process further transactions
-- Call App. The argument should be: ["asset-creation"]
-- Accounts: [reserve account]
+## Getting Started
 
-## Reserving Transaction
-- Reserving an asset means sending all amounts to the reserve account. Make sure to opt-in reserve acc to the asset, beforehand. Then:
-- Arguments: ["reserve"]
-- Assets: [(asset id)]
-- Account: [(reserve account)]
+- Create project on Intellij IDEA (not mandatory, but this is an very easy tool I used for my development). [Tutorial here](https://developer.algorand.org/articles/making-development-easier-algodea-intellij-plugin/)
+- Prepare your platform (install python, create account on Purestake node, install pyteal)
+- Download teal.py from src files
+- Upload this file in src folder of Intellij IDEA project
+- Create 4 accounts representing Ureca, Reserve account, Producer account, and Buyer's account. This can be done on Intellij IDEA
 
-## Minting Transaction
-- Make the receiver opt-in to the asset
-- To call the App should have these settings
-- Txn Caller must be Ureca address
-- Arguments: ["mint", (bigger number), (smaller), (asset amount number) ]
-- Asset: (created asset id)
-- Accounts: ( receiver address, reserve account)
+## Deploying your smart contract
+- To create a smart contract, you must first customize the settings of the new asset in the asset_creation() function, including its name and default accounts. It is important to note that certain parameters cannot be modified after deployment.
+- Create the Smart Contract If you are using Intellij, folllow the [tutorial](https://developer.algorand.org/articles/making-development-easier-algodea-intellij-plugin/). Or you can also create an application using algorand sdk's simple transaction. It is important to ensure that the transaction is sent from the Ureca address.
+- Once the smart contract has been successfully created, it is necessary to fund its account in order to enable further transactions. If you are using testnet, fund [here](https://bank.testnet.algorand.network/)
 
-## Transferring Transaction
-- Make sure both receiver and sender have opted-in to the asset
-- To call the App should have these settings
-- Txn Caller must be Ureca address
-- Arguments: ["transfer", (asset amount number) ]
-- Asset: (created asset id)
-- Accounts: (sender account, receiver account, reserve address)
+## Actions Smart Contract perform on ASA(Algorand Standart Asset)
+All these instances must be called by Ureca Address(aka the creator of the smart contract, else they will be rejected)
 
-## Retiring Transaction
-- To call the App should have these settings
-- Txn Caller must be Ureca address
-- Arguments: ["retire", (asset amount number) ]
-- Asset: (created asset id)
-- Accounts: (sender account, reserve address)
+### Creating Asset Transaction
 
-## Deployed app 
-App address: CDKTNZILMUAOFNAHMUUVVALE3F6S6ONM53HTIOZWW5HO22G2NYZHX5IZ24
-Stateful smart contract ID : 204737434
-Asset ID: 204737697
+In teal.py file, by default you will be creating an asset with following settings: 
+
+
+```sh
+InnerTxnBuilder.SetFields({
+        TxnField.type_enum: TxnType.AssetConfig,
+        TxnField.fee: Global.min_txn_fee(),
+        TxnField.config_asset_total: Int(100000000000000000),
+        TxnField.config_asset_decimals: Int(0),
+        TxnField.config_asset_unit_name: Bytes("rec"),
+        TxnField.config_asset_name: Bytes("RecToken2504"),
+        TxnField.config_asset_default_frozen: Int(1),
+        TxnField.config_asset_manager: App.globalGet(Bytes("Creator")),
+        TxnField.config_asset_reserve: Txn.accounts[1],
+        TxnField.config_asset_clawback: Global.current_application_address()
+}),
+```
+
+
+Calling smart contract to create asset, transactions necessary additional parameters are:
+- Arguments array: "asset-creation"
+- Accounts array: [(reserveAccount)]
+
+
+### Reserving Transaction
+
+Make sure to opt-in reserve acc to the asset, beforehand. Reserving an asset means sending all amounts to the reserve account.
+Calling smart contract to reserve the asset, transactions necessary additional parameters are:
+
+- Arguments array: "reserve"
+- Foreign Assets: assetId
+- Accounts array: reserveAccount
+
+### Minting Transaction
+
+Make sure Producer's Account has opted-in to the asset.
+Calling smart contract to mint the asset, transactions necessary additional parameters are:
+
+- Arguments array: "mint", biggerNumber, smallerNumber, tolerancePercentage, assetAmount
+- Foreign Assets array: assetId
+- Accounts array:  producerAccount, reserveAccount
+
+### Transferring Transaction
+
+Make sure Buyer's Account have opted-in to the asset
+Calling smart contract to transfer the asset, transactions necessary additional parameters are:
+
+- Arguments array: "transfer", assetAmount
+- Foreign Assets array: assetId
+- Accounts array: producerAccount, buyerAccount, reserveAccount
+
+### Retiring Transaction
+Calling smart contract to retire the asset, transactions necessary additional parameters are:
+
+- Arguments array: "retire", assetAmount 
+- Foreign Assets array: assetId
+- Accounts array: buyerAccount, reserveAccount
+
+### Already deployed application for testing
+
+Stateful smart contract ID : 207608481
+Asset ID: 207610354
