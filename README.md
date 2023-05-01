@@ -42,7 +42,7 @@ InnerTxnBuilder.SetFields({
 
 Calling smart contract to create asset, transactions necessary additional parameters are:
 - Arguments array: "asset-creation"
-- Accounts array: [(reserveAccount)]
+- Accounts array: reserveAccount
 
 
 ### Reserving Transaction
