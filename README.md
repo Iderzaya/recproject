@@ -4,12 +4,12 @@ The REC Smart Contract is a program written in Pyteal, a language developed by A
 
 ## Roles and Permissions
 
-The Asset Contract has four roles with different permissions:
+The Smart Contract has four roles with different permissions:
 
 1. Creator: The creator is the only one who can initiate every transaction. They have full control over the Smart Contract, including the ability to create and terminate the contract.
-1. Reserve Address: The reserve address is set as the reserve address and holds the asset.
-1. Buyer: The buyer triggers the buying process and provides necessary details to verify the transaction.
-1. Producer: The producer triggers the selling process and provides necessary details to verify the transaction.
+1. Reserve Address: The reserve address is set as the reserve address of the asset and holds the asset.
+1. Buyer: The buyer triggers the buying process and provides necessary details to Ureca, but doesn't get have any permission in Smart Contract.
+1. Producer: The producer triggers the minting process and provides necessary details to Ureca, but doesn't get have any permission in Smart Contract.
 
 
 ## Transaction Workflow
