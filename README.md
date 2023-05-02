@@ -1,7 +1,35 @@
 # REC project
 
-The REC Smart Contract is a program written in Pyteal, a language developed by Algorand. It manages our asset/REC automatically by creating it, minting, reserving, transferring, and retiring it. Only our Creator Address (URECA Address) is allowed to initiate these transactions, otherwise they will be rejected. All asset IDs and numbers must be integers, while arguments, accounts, and assets must be in the form of an array. 
+The REC Smart Contract is a program written in Pyteal, a language developed by Algorand. This documentation outlines the transaction specifications and business logic for the REC smart contract, which allows for the creation, reservation, minting, transfer, and retiring of assets. Only our Creator Address (URECA Address) is allowed to initiate these transactions, otherwise they will be rejected. The smart contract sets itself as the clawback address for any assets it creates. 
 
+## Roles and Permissions
+
+The Asset Contract has four roles with different permissions:
+
+1. Creator: The creator is the only one who can initiate every transaction. They have full control over the Smart Contract, including the ability to create and terminate the contract.
+1. Reserve Address: The reserve address is set as the reserve address and holds the asset.
+1. Buyer: The buyer triggers the buying process and provides necessary details to verify the transaction.
+1. Producer: The producer triggers the selling process and provides necessary details to verify the transaction.
+
+
+## Transaction Workflow
+
+The Contract transaction workflow is as follows:
+
+1. The creator deploys the Smart Contract to the blockchain.
+1. The creator calls the Smart Contract, which makes the transaction to create the asset and set name, reserve address, clawback address as own address, manager as creator, and by default frozen.
+2. The creator must then also initiate reserving transaction, to send all assets to reserve address.
+3. Producer initiates the selling process by providing details to mint RECs.
+4. Verification of the transaction details happens off-chain.
+5. Once the verification is complete, smart contract is immediately called by the creator address to mint credits.
+6. The buyer initiates the buying process by providing details.
+7. The creator calls the Smart Contract to transfer from producer's account to buyer.
+8. The buyer starts retire credit request to ureca, which then creator calls the Smart Contract, which executes the transaction.
+
+## Business Rules
+The following business rules apply to the Smart Contract:
+1. All Transactions must be called by Ureca Address
+2. The Asset is by default frozen.
 
 ## Getting Started
 
@@ -41,6 +69,7 @@ InnerTxnBuilder.SetFields({
 
 
 Calling smart contract to create asset, transactions necessary additional parameters are:
+- Sender: urecaAddress
 - Arguments array: "asset-creation"
 - Accounts array: reserveAccount
 
