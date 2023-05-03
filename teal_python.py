@@ -1,8 +1,5 @@
 from pyteal import *
 
-
-# 207610354
-
 def approval():
     reserve_address = App.globalGet(Bytes("Reserve"))
 
