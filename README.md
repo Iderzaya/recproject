@@ -30,6 +30,7 @@ The Contract transaction workflow is as follows:
 The following business rules apply to the Smart Contract:
 1. All Transactions must be called by Ureca Address
 2. The Asset is by default frozen.
+3. After a Smart Contract has been deployed, it becomes immutable, meaning that no one is authorized to change the contents of the contract. 
 
 ## Getting Started
 
