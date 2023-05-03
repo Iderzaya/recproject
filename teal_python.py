@@ -1,8 +1,6 @@
 from pyteal import *
 
 
-# 207610354
-
 def approval():
     reserve_address = App.globalGet(Bytes("Reserve"))
 
@@ -25,19 +23,7 @@ def approval():
         )
 
     def deleteorupdate():
-        return Seq(
-            Assert(And(
-                App.globalGet(Bytes("Creator")) == Txn.sender(),
-                Txn.type_enum() == TxnType.ApplicationCall,
-                Txn.fee() == Global.min_txn_fee(),
-                Txn.application_id() == Global.current_application_id(),
-                Txn.close_remainder_to() == Global.zero_address(),
-                Txn.asset_close_to() == Global.zero_address(),
-                Txn.rekey_to() == Global.zero_address(),
-                Global.group_size() == Int(1))
-            ),
-            Approve()
-        )
+        return Reject()
 
     # Creating asset within the address and configure all addresses with special permissions
     def asset_creation():
@@ -192,8 +178,7 @@ def approval():
                     Txn.assets[0] == App.globalGet(Bytes("asset")),
                     Txn.accounts[2] == App.globalGet(Bytes("Reserve")),
                     Btoi(Txn.application_args[1]) > Int(0)
-                )
-            ),
+                )),
             InnerTxnBuilder.Begin(),
             InnerTxnBuilder.SetFields({
                 TxnField.type_enum: TxnType.AssetTransfer,
