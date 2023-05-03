@@ -1,6 +1,8 @@
 from pyteal import *
 
 
+# 207610354
+
 def approval():
     reserve_address = App.globalGet(Bytes("Reserve"))
 
@@ -17,7 +19,7 @@ def approval():
                         Txn.rekey_to() == Global.zero_address(),
                         Global.group_size() == Int(1)
                     )),
-                App.globalPut(Bytes("Creator"), Txn.sender()),
+                App.globalPut(Bytes("Creator"), Global.creator_address()),
                 Return(Int(1))
             ]
         )
@@ -33,21 +35,24 @@ def approval():
                     App.globalGet(Bytes("Creator")) == Txn.sender(),
                     Txn.on_completion() == OnComplete.NoOp,
                     Txn.type_enum() == TxnType.ApplicationCall,
-                    Txn.fee() == Global.min_txn_fee(),
                     Txn.close_remainder_to() == Global.zero_address(),
                     Txn.asset_close_to() == Global.zero_address(),
                     Txn.rekey_to() == Global.zero_address(),
                     Txn.application_id() == Global.current_application_id(),
                     Global.group_size() == Int(1))
             ),
+            Assert(
+                Txn.fee() >= Global.min_txn_fee() * Int(2),
+            ),
             InnerTxnBuilder.Begin(),
             InnerTxnBuilder.SetFields({
                 TxnField.type_enum: TxnType.AssetConfig,
-                TxnField.fee: Global.min_txn_fee(),
+                # TxnField.fee: Global.min_txn_fee(),
+                TxnField.fee: Int(0),
                 TxnField.config_asset_total: Int(100000000000000000),
                 TxnField.config_asset_decimals: Int(4),
                 TxnField.config_asset_unit_name: Bytes("rec"),
-                TxnField.config_asset_name: Bytes("RecAsset"),
+                TxnField.config_asset_name: Bytes("RecAsset0305"),
                 TxnField.config_asset_default_frozen: Int(1),
                 TxnField.config_asset_manager: App.globalGet(Bytes("Creator")),
                 TxnField.config_asset_reserve: Txn.accounts[1],
@@ -69,17 +74,19 @@ def approval():
                 Txn.on_completion() == OnComplete.NoOp,
                 Txn.type_enum() == TxnType.ApplicationCall,
                 Txn.application_id() == Global.current_application_id(),
-                Txn.fee() == Global.min_txn_fee(),
                 Txn.close_remainder_to() == Global.zero_address(),
                 Txn.asset_close_to() == Global.zero_address(),
                 Txn.rekey_to() == Global.zero_address(),
                 Txn.assets[0] == App.globalGet(Bytes("asset")),
                 Txn.accounts[1] == App.globalGet(Bytes("Reserve")))
             ),
+            Assert(
+                Txn.fee() >= Global.min_txn_fee() * Int(2),
+                ),
             InnerTxnBuilder.Begin(),
             InnerTxnBuilder.SetFields({
                 TxnField.type_enum: TxnType.AssetTransfer,
-                TxnField.fee: Global.min_txn_fee(),
+                TxnField.fee: Int(0),
                 TxnField.asset_sender: Global.current_application_address(),
                 TxnField.asset_receiver: reserve_address,
                 TxnField.asset_amount: Int(100000000000000000),
@@ -99,7 +106,6 @@ def approval():
                     Global.group_size() == Int(1),
                     Txn.type_enum() == TxnType.ApplicationCall,
                     Txn.on_completion() == OnComplete.NoOp,
-                    Txn.fee() == Global.min_txn_fee(),
                     Txn.close_remainder_to() == Global.zero_address(),
                     Txn.asset_close_to() == Global.zero_address(),
                     Txn.rekey_to() == Global.zero_address(),
@@ -108,10 +114,13 @@ def approval():
                     Txn.accounts[3] == App.globalGet(Bytes("Reserve")),
                     Btoi(Txn.application_args[1]) > Int(0))
             ),
+            Assert(
+                Txn.fee() >= Global.min_txn_fee() * Int(2),
+                ),
             InnerTxnBuilder.Begin(),
             InnerTxnBuilder.SetFields({
                 TxnField.type_enum: TxnType.AssetTransfer,
-                TxnField.fee: Global.min_txn_fee(),
+                TxnField.fee: Int(0),
                 TxnField.asset_sender: Txn.accounts[1],
                 TxnField.asset_receiver: Txn.accounts[2],
                 TxnField.asset_amount: Btoi(Txn.application_args[1]),
@@ -135,7 +144,6 @@ def approval():
                     Txn.on_completion() == OnComplete.NoOp,
                     Txn.type_enum() == TxnType.ApplicationCall,
                     Txn.application_id() == Global.current_application_id(),
-                    Txn.fee() == Global.min_txn_fee(),
                     Txn.close_remainder_to() == Global.zero_address(),
                     Txn.asset_close_to() == Global.zero_address(),
                     Txn.rekey_to() == Global.zero_address(),
@@ -145,13 +153,17 @@ def approval():
                     Btoi(Txn.application_args[2]) > Int(0),
                     Btoi(Txn.application_args[3]) > Int(0),
                     Btoi(Txn.application_args[4]) > Int(0),
+                    Btoi(Txn.application_args[1]) >= Btoi(Txn.application_args[2])
                 )
             ),
+            Assert(
+                Txn.fee() >= Global.min_txn_fee() * Int(2),
+                ),
             Assert(tol() == Int(1)),
             InnerTxnBuilder.Begin(),
             InnerTxnBuilder.SetFields({
                 TxnField.type_enum: TxnType.AssetTransfer,
-                TxnField.fee: Global.min_txn_fee(),
+                TxnField.fee: Int(0),
                 TxnField.asset_sender: reserve_address,
                 TxnField.asset_receiver: Txn.accounts[1],
                 TxnField.asset_amount: Btoi(Txn.application_args[4]),
@@ -171,7 +183,6 @@ def approval():
                     Txn.application_id() == Global.current_application_id(),
                     Txn.type_enum() == TxnType.ApplicationCall,
                     Txn.on_completion() == OnComplete.NoOp,
-                    Txn.fee() == Global.min_txn_fee(),
                     Txn.close_remainder_to() == Global.zero_address(),
                     Txn.asset_close_to() == Global.zero_address(),
                     Txn.rekey_to() == Global.zero_address(),
@@ -179,10 +190,13 @@ def approval():
                     Txn.accounts[2] == App.globalGet(Bytes("Reserve")),
                     Btoi(Txn.application_args[1]) > Int(0)
                 )),
+            Assert(
+                Txn.fee() >= Global.min_txn_fee() * Int(2),
+                ),
             InnerTxnBuilder.Begin(),
             InnerTxnBuilder.SetFields({
                 TxnField.type_enum: TxnType.AssetTransfer,
-                TxnField.fee: Global.min_txn_fee(),
+                TxnField.fee: Int(0),
                 TxnField.asset_sender: Txn.accounts[1],
                 TxnField.asset_receiver: reserve_address,
                 TxnField.asset_amount: Btoi(Txn.application_args[1]),
