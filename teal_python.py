@@ -10,12 +10,13 @@ def approval():
             [
                 Assert(
                     And(
-                        Txn.application_args.length() == Int(0),
+                        Global.group_size() == Int(1),
                         Txn.type_enum() == TxnType.ApplicationCall,
+                        Txn.application_args.length() == Int(0),
                         Txn.fee() == Global.min_txn_fee(),
                         Txn.close_remainder_to() == Global.zero_address(),
                         Txn.rekey_to() == Global.zero_address(),
-                        Global.group_size() == Int(1)
+
                     )),
                 App.globalPut(Bytes("asset"), Int(0)),
                 Return(Int(1))
@@ -32,13 +33,13 @@ def approval():
             Assert(
                 And(
                     Global.creator_address() == Txn.sender(),
+                    Global.group_size() == Int(1),
                     Txn.on_completion() == OnComplete.NoOp,
                     Txn.type_enum() == TxnType.ApplicationCall,
                     Txn.close_remainder_to() == Global.zero_address(),
                     Txn.asset_close_to() == Global.zero_address(),
                     Txn.rekey_to() == Global.zero_address(),
-                    Txn.application_id() == Global.current_application_id(),
-                    Global.group_size() == Int(1))
+                    Txn.application_id() == Global.current_application_id(), )
             ),
             Assert(
                 Txn.fee() >= Global.min_txn_fee() * Int(2),
@@ -46,12 +47,11 @@ def approval():
             InnerTxnBuilder.Begin(),
             InnerTxnBuilder.SetFields({
                 TxnField.type_enum: TxnType.AssetConfig,
-                # TxnField.fee: Global.min_txn_fee(),
                 TxnField.fee: Int(0),
                 TxnField.config_asset_total: Int(100000000000000000),
                 TxnField.config_asset_decimals: Int(4),
                 TxnField.config_asset_unit_name: Bytes("rec"),
-                TxnField.config_asset_name: Bytes("RecAsset0305"),
+                TxnField.config_asset_name: Bytes("RecAsset0516"),
                 TxnField.config_asset_default_frozen: Int(1),
                 TxnField.config_asset_manager: Global.creator_address(),
                 TxnField.config_asset_reserve: Txn.accounts[1],
@@ -112,13 +112,23 @@ def approval():
                     Txn.rekey_to() == Global.zero_address(),
                     Txn.assets[0] == App.globalGet(Bytes("asset")),
                     Txn.accounts[2] == App.globalGet(Bytes("Reserve")),
+                )
+            ),
+            Assert(
+                And(
                     Btoi(Txn.application_args[1]) > Int(0),
                     Btoi(Txn.application_args[2]) > Int(0),
                     Btoi(Txn.application_args[3]) > Int(0),
                     Btoi(Txn.application_args[4]) > Int(0),
                     Btoi(Txn.application_args[1]) >= Btoi(Txn.application_args[2])
-                )
-            ),
+                )),
+            Assert(
+                And(
+                    Len(Txn.application_args[1]) <= Int(8),
+                    Len(Txn.application_args[2]) <= Int(8),
+                    Len(Txn.application_args[3]) <= Int(8),
+                    Len(Txn.application_args[4]) <= Int(8),
+                )),
             Assert(
                 Txn.fee() >= Global.min_txn_fee() * Int(2),
             ),
@@ -151,9 +161,13 @@ def approval():
                     Txn.rekey_to() == Global.zero_address(),
                     Txn.application_id() == Global.current_application_id(),
                     Txn.assets[0] == App.globalGet(Bytes("asset")),
-                    Txn.accounts[3] == App.globalGet(Bytes("Reserve")),
-                    Btoi(Txn.application_args[1]) > Int(0))
+                    Txn.accounts[3] == App.globalGet(Bytes("Reserve")))
             ),
+            Assert(
+                And(
+                    Len(Txn.application_args[1]) <= Int(8),
+                    Btoi(Txn.application_args[1]) > Int(0)
+                )),
             Assert(
                 Txn.fee() >= Global.min_txn_fee() * Int(2),
             ),
@@ -185,6 +199,10 @@ def approval():
                     Txn.rekey_to() == Global.zero_address(),
                     Txn.assets[0] == App.globalGet(Bytes("asset")),
                     Txn.accounts[2] == App.globalGet(Bytes("Reserve")),
+                )),
+            Assert(
+                And(
+                    Len(Txn.application_args[1]) <= Int(8),
                     Btoi(Txn.application_args[1]) > Int(0)
                 )),
             Assert(
@@ -203,18 +221,19 @@ def approval():
             Approve()
         )
 
-    return Cond(
-        [Txn.application_id() == Int(0), on_creation()],
-        [Txn.on_completion() == OnComplete.DeleteApplication, deleteorupdate()],
-        [Txn.on_completion() == OnComplete.UpdateApplication, deleteorupdate()],
-        [Txn.on_completion() == OnComplete.CloseOut, deleteorupdate()],
-        [Txn.on_completion() == OnComplete.OptIn, Approve()],
-        [Txn.application_args[0] == Bytes("asset-creation"), asset_creation()],
-        [Txn.application_args[0] == Bytes("mint"), mint()],
-        [Txn.application_args[0] == Bytes("retire"), retire()],
-        [Txn.application_args[0] == Bytes("transfer"), transfer()],
-        [Txn.application_args[0] == Bytes("reserve"), reserve()]
-
+    return Pragma(
+        Cond(
+            [Txn.application_id() == Int(0), on_creation()],
+            [Txn.on_completion() == OnComplete.DeleteApplication, deleteorupdate()],
+            [Txn.on_completion() == OnComplete.UpdateApplication, deleteorupdate()],
+            [Txn.on_completion() == OnComplete.CloseOut, deleteorupdate()],
+            [Txn.on_completion() == OnComplete.OptIn, Approve()],
+            [Txn.application_args[0] == Bytes("asset-creation"), asset_creation()],
+            [Txn.application_args[0] == Bytes("mint"), mint()],
+            [Txn.application_args[0] == Bytes("retire"), retire()],
+            [Txn.application_args[0] == Bytes("transfer"), transfer()],
+            [Txn.application_args[0] == Bytes("reserve"), reserve()], ),
+        compiler_version=">=0.19.0"
     )
 
 
@@ -222,7 +241,7 @@ def clear():
     return Return(Int(1))
 
 
-if __name__ == "__main__":
+if __name__ == "_main_":
     with open("approval_program.teal", "w") as f:
         compiled = compileTeal(approval(), mode=Mode.Application, version=6)
         f.write(compiled)
