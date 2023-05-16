@@ -111,5 +111,6 @@ Calling smart contract to retire the asset, transactions necessary additional pa
 
 ### Already deployed application for testing
 
-Stateful smart contract ID : 207608481
-Asset ID: 207610354
+Stateful smart contract ID : 212148052
+Asset ID: 212148596
+
